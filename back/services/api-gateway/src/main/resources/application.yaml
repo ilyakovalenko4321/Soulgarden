@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: http://auth:80
+              predicates:
+                - Path=/auth/public/**
+                - Method=GET,POST
+              filters:
+                - RewritePath=/user/public/(?<remaining>.*),/${remaining}
