@@ -5,8 +5,9 @@ echo "Началась сборка хэша api-gateway"
 
 SRC_DIR="../../back/services/api-gateway"
 
+#ToDO idea
 CHECKSUM=$(find "$SRC_DIR" -type f \( -name '*.java' -o -name '*.xml' \) \
-  -not -path '*/.git/*' -not -path '*/target/*' -not -path '*/build/*' \
+  -not -path '*/.git/*' -not -path '*/target/*' -not -path '*/build/*' -not -path '*/.idea/*' -not -path '*/.mvn/*' \
   -print0 \
   | sort -z \
   | xargs -0 sha1sum \
