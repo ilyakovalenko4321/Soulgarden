@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: api-gateway
   namespace: soulgarden
+  labels:
+    app: api-gateway
 spec:
   replicas: 3
   strategy:
@@ -20,7 +22,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: api-gateway-service:latest
+          image: api-gateway:540222a4147d4213
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

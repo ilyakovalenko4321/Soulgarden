@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: api-gateway
   namespace: soulgarden
+  labels:
+    app: api-gateway
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
