@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: api-gateway:540222a4147d4213
+          image: ${IMAGE_NAME}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: soulgarden
+  labels:
+    app: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - name: redis-auth
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP

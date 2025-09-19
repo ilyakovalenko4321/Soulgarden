@@ -7,10 +7,11 @@ spring:
       server:
         webflux:
           routes:
-            - id: auth-service
-              uri: http://auth:80
-              predicates:
-                - Path=/auth/public/**
-                - Method=GET,POST
-              filters:
-                - RewritePath=/user/public/(?<remaining>.*),/${remaining}
+          - id: auth-service
+            uri: http://auth-service:80
+            predicates:
+              - Path=/auth/public/**
+              - Method=GET,POST,DELETE
+            filters:
+              - RewritePath=/auth/public/(?<remaining>.*), /${remaining}
+

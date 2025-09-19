@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: auth-service
+
+  data:
+    redis:
+      host: redis-auth
+      port: 6379
+
+server:
+  port: 8081
+
+auth:
+  rsa:
+    private-key-path: /etc/auth-service/keys/private_key.pem
+    public-key-path:  /etc/auth-service/keys/public_key.pem
+  validity:
+    access: 420
+    refresh: 2592000
+kafka:
+  topics:
+    public-key-topic: public-key
+
+pod:
+  id: ${POD_ID:${random.uuid}}

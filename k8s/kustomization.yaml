@@ -4,3 +4,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - ../back/services/api-gateway/k8s
+  - ../back/services/auth-service/k8s
+  - ../back/services/infrastructures
