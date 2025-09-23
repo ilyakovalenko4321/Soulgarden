@@ -7,10 +7,12 @@ public class Health {
 
     private Boolean isContainerLive;
     private Boolean isKafkaReady;
+    private Boolean isLogNetworkReady;
 
     public Health(){
         this.isKafkaReady = false;
         this.isContainerLive = true;
+        this.isLogNetworkReady = true;
     }
 
     public void setIsKafkaReady(Boolean isReady){
@@ -27,6 +29,14 @@ public class Health {
 
     public Boolean getIsContainerLive(){
         return this.isContainerLive;
+    }
+
+    public void setIsLogNetworkReady(Boolean isReady){
+        this.isLogNetworkReady = isReady;
+    }
+
+    public Boolean getIsLogNetworkIsReady(){
+        return this.isLogNetworkReady;
     }
 }
 

@@ -23,3 +23,10 @@ kafka:
 
 pod:
   id: ${POD_ID:${random.uuid}}
+
+
+
+logger:
+  batchSize: 50
+  queueCapacity: 1000
+  url: http://log-server/logs

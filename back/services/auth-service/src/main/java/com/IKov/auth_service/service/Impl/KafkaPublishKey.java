@@ -1,13 +1,14 @@
 package com.IKov.auth_service.service.Impl;
 
 import com.IKov.auth_service.entity.health.Health;
+import com.IKov.auth_service.entity.logs.LOG_LEVEL;
 import com.IKov.auth_service.service.PublishKey;
 import com.IKov.auth_service.service.props.KafkaProps;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.Backoff;
@@ -26,9 +27,9 @@ import java.util.Base64;
 
 @Service
 @Slf4j
-public class PublishKeyImpl implements PublishKey {
+public class KafkaPublishKey implements PublishKey {
 
-    private static final Logger log = LoggerFactory.getLogger(PublishKeyImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(KafkaPublishKey.class);
     private final RSAPublicKey rsaPublicKey;
     private final String rsaKeyId;
     private final KafkaSender<String, String> kafkaSender;
@@ -36,8 +37,8 @@ public class PublishKeyImpl implements PublishKey {
     private final com.IKov.auth_service.service.Logger logger;
     private final Health health;
 
-    public PublishKeyImpl(RSAPublicKey rsaPublicKey, String rsaKeyId, KafkaSender<String, String> kafkaSender, KafkaProps kafkaProps,
-                          com.IKov.auth_service.service.Logger logger, Health health){
+    public KafkaPublishKey(RSAPublicKey rsaPublicKey, String rsaKeyId, KafkaSender<String, String> kafkaSender, KafkaProps kafkaProps,
+                           com.IKov.auth_service.service.Logger logger, Health health){
         this.rsaPublicKey = rsaPublicKey;
         this.rsaKeyId = rsaKeyId;
         this.kafkaSender = kafkaSender;
@@ -63,7 +64,8 @@ public class PublishKeyImpl implements PublishKey {
         try {
             kafkaSender.send(Mono.just(senderRecord))
                     .timeout(Duration.ofSeconds(30))
-                    .doOnNext(r -> log.info(logger.formLog("Public key was successfully send")))
+                    .doOnNext(r -> log.info(logger
+                            .addLogAndGetIt("Public key was successfully send", LOG_LEVEL.INFO, MDC.get("traceId"), MDC.get("userId")).block()))
                     .retryWhen(
                             Retry.fixedDelay(3, Duration.ofSeconds(10))
                                     .doAfterRetry(s -> System.out.println("Send failed"))
@@ -71,7 +73,8 @@ public class PublishKeyImpl implements PublishKey {
                     )
                     .blockLast();
         } catch (Exception e){
-            log.error(logger.formLog("Cannot publish public key"));
+            log.error(logger
+                    .addLogAndGetIt("Cannot publish public key", LOG_LEVEL.EXCEPTION, MDC.get("traceId"), MDC.get("userId")).block());
             throw e;
         }
         health.setIsKafkaReady(true);
@@ -84,7 +87,8 @@ public class PublishKeyImpl implements PublishKey {
 
     @Recover
     private void setHealthFalse(){
-        log.info(logger.formLog("Error while sending kafka message. It will restart container"));
+        log.info(logger
+                .addLogAndGetIt("Error while sending kafka message. It will restart container", LOG_LEVEL.INFO, MDC.get("traceId"), MDC.get("userId")).block());
         health.setIsContainerLive(false);
     }
 
