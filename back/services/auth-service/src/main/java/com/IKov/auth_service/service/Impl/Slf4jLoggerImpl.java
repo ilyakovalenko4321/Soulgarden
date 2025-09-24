@@ -38,7 +38,7 @@ public class Slf4jLoggerImpl implements Logger {
     private void init() {
         logEvents.asFlux()
                 .buffer(Duration.ofSeconds(20))
-                .concatMap(logs -> logShipper.sendBatch(logs)
+                .flatMap(logs -> logShipper.sendBatch(logs)
                         .doOnError(error -> health.setIsLogNetworkReady(false))
                         .retryWhen(Retry.fixedDelay(9, Duration.ofSeconds(10))
                                 .onRetryExhaustedThrow(((retryBackoffSpec, retrySignal) -> {
@@ -90,7 +90,6 @@ public class Slf4jLoggerImpl implements Logger {
                     logText
             );
             Sinks.EmitResult result = logEvents.tryEmitNext(log);
-            System.out.println("AddLog work");
             if(result.isFailure()){
                 health.setIsLogNetworkReady(false);
             }

@@ -20,13 +20,15 @@ auth:
 kafka:
   topics:
     public-key-topic: public-key
+  http-adress: kafka:9092
 
 pod:
   id: ${POD_ID:${random.uuid}}
 
-
-
 logger:
   batchSize: 50
   queueCapacity: 1000
-  url: http://log-server/logs
+  base-url: http://log-server:80
+
+url:
+  user-service: http://user-service:80

@@ -17,20 +17,17 @@ public class HttpLogShipper implements LogShipper {
     private final WebClient webClient;
 
     public HttpLogShipper(WebClient.Builder webClientBuilder,
-                          @Value("${logs.base-url:http://localhost:8082}") String baseUrl,
-                          Health health){
+                          @Value("${logger.base-url:http://log-service:80}") String baseUrl){
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
     }
 
     @Override
     public Mono<Optional<List<LogEvent>>> sendBatch(List<LogEvent> logEvents) {
-        System.out.println("sendBatchWork");
         return webClient.post()
                 .uri("/postLogBatch")
                 .bodyValue(logEvents)
                 .retrieve()
                 .toBodilessEntity()
-                .map(resp -> Optional.<List<LogEvent>>empty()) // успех → пусто
-                .onErrorReturn(Optional.of(logEvents));
+                .map(resp -> Optional.<List<LogEvent>>empty()); // успех → пусто;
     }
 }

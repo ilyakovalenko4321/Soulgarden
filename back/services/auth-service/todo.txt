@@ -1,2 +1,1 @@
-add keygen at start. And add kafka to publish new keys
-Написать healthcheck чтобы проверял, успел ли он опубликовать свой ключ.
+Rewrite logs

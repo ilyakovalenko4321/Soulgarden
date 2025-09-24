@@ -29,21 +29,24 @@ public class HealthController {
     @GetMapping("/liveness")
     public ResponseEntity<String> livenessProbe(){
         boolean containerLive = health.getIsContainerLive();
-        log.info("[LIVENESS] Probe called. Container live = {}", containerLive);
+        String logText = String.format("[LIVENESS] Probe called. Container live = %s", containerLive);
         if(health.getIsContainerLive()){
+            log.info(logger.addLogAndGetIt(logText, LOG_LEVEL.INFO, MDC.get("traceId"), MDC.get("userId")).block());
             return ResponseEntity.ok("OK");
         }
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(logger.addLogAndGetIt
-                ("Unable to send public key", LOG_LEVEL.WARN, MDC.get("traceId"), MDC.get("userId")).block());
+                ("Unable to send public key", LOG_LEVEL.EXCEPTION, MDC.get("traceId"), MDC.get("userId")).block());
     }
 
     @GetMapping("/readiness")
     public ResponseEntity<String> readinessProbe(){
         boolean kafkaReady = health.getIsKafkaReady();
-        log.info("[READINESS] Probe called. Kafka ready = {}", kafkaReady);
-        if(health.getIsKafkaReady() && health.getIsLogNetworkIsReady()){
+        boolean logServiceReady = health.getIsLogNetworkIsReady();
+        if(kafkaReady && logServiceReady){
+            log.info(logger.addLogAndGetIt("[READINESS] Probe called. Kafka ready. LogService ready", LOG_LEVEL.INFO, MDC.get("traceId"), MDC.get("userId")).block());
             return ResponseEntity.ok("OK");
         }
+        log.info("[EXCEPTION] Probe called. Kafka ready = {}. LogService ready = {}", kafkaReady, logServiceReady);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(logger
                 .addLogAndGetIt("Kafka do not receive message", LOG_LEVEL.WARN, MDC.get("traceId"), MDC.get("userId")).block());
     }
