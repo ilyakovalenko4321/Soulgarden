@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/actuator/health")
-@Slf4j
 public class HealthController {
 
     private final Health health;

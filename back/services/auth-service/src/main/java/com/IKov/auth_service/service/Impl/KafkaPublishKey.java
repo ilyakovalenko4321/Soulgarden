@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.util.Base64;
 
 @Service
-@Slf4j
 public class KafkaPublishKey implements PublishKey {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaPublishKey.class);

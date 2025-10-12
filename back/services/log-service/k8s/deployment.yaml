@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-service
+  namespace: soulgarden
+  labels:
+    app: log-service
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  selector:
+    matchLabels:
+      app: log-service
+  template:
+    metadata:
+      labels:
+        app: log-service
+    spec:
+      containers:
+        - name: log-service
+          image: log-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+            initialDelaySeconds: 180
+            periodSeconds: 30
+            failureThreshold: 2
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8083
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 2
+            timeoutSeconds: 5

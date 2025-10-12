@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: log-service
+
+elasticsearch:
+  host: elasticsearch
+  port: 9200
+  scheme: http
+  index:
+    logs: logs
+

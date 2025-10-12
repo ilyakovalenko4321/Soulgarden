@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-service-config
+  namespace: soulgarden
+  labels:
+    app: log-service
+data:
+  application.yaml: |-
+    spring:
+      application:
+        name: log-service
+
+    elasticsearch:
+      host: elasticsearch
+      port: 9200
+      scheme: http
+      index:
+        logs: logs
+
