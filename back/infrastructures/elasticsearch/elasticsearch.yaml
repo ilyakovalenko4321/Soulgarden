@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: soulgarden
+  labels:
+    app: elasticsearch
+data:
+  elasticsearch.yml: |
+    cluster.name: "es-cluster"
+    network.host: 0.0.0.0
+    xpack.security.enabled: false
+    path.data: /usr/share/elasticsearch/data
+    path.logs: /usr/share/elasticsearch/logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-headless
+  namespace: soulgarden
+  labels:
+    app: elasticsearch
+spec:
+  clusterIP: None
+  selector:
+    app: elasticsearch
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+    - name: transport
+      port: 9300
+      targetPort: 9300
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: soulgarden
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: "elasticsearch-headless"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.19.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9200
+            - name: transport
+              containerPort: 9300
+          env:
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: discovery.seed_hosts
+              value: "elasticsearch-headless"
+            - name: cluster.initial_master_nodes
+              value: "elasticsearch-0,elasticsearch-1,elasticsearch-2"
+            - name: ES_JAVA_OPTS
+              value: "-Xms1g -Xmx1g"
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+            - name: logs
+              mountPath: /usr/share/elasticsearch/logs
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health?local=true
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /_cluster/health?local=true
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+      volumes:
+        - name: config
+          configMap:
+            name: elasticsearch-config
+        - name: logs
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+        # storageClassName: "standard" # <-- укажи свою, если нужно

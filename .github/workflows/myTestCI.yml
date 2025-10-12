@@ -2,12 +2,14 @@ name: myTestCI.yml
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
   workflow:
     name: firstWorkflow
     runs-on: ubuntu-latest
 
-  steps:
-    - name: echo Hello World
-      run: echo "Hello World!"
+    steps:
+      - name: echo Hello World
+        run: echo "Hello World!"
