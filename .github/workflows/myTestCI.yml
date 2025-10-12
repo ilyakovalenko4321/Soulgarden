@@ -10,6 +10,6 @@ jobs:
     name: firstWorkflow
     runs-on: ubuntu-latest
 
-  steps:
-    - name: echo Hello World
-      run: echo "Hello World!"
+    steps:
+      - name: echo Hello World
+        run: echo "Hello World!"
